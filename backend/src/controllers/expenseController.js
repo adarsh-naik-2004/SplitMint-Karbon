@@ -60,3 +60,4 @@ export async function groupBalances(req, res) {
   const expenses = await Expense.find({ ownerId: req.session.userId, groupId });
   res.json(computeBalances(expenses));
 }
+

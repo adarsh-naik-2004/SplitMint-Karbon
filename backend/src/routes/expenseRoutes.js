@@ -1,11 +1,42 @@
 import { Router } from 'express';
-import { createExpense, deleteExpense, groupBalances, listExpenses, updateExpense } from '../controllers/expenseController.js';
+import {
+  listExpenses,
+  getExpense,
+  createExpense,
+  updateExpense,
+  deleteExpense,
+  groupBalances,
+  groupStats
+} from '../controllers/expenseController.js';
+import {
+  createExpenseValidator,
+  updateExpenseValidator,
+  deleteExpenseValidator,
+  listExpensesValidator,
+  groupBalancesValidator
+} from '../middleware/validators.js';
 
 const router = Router();
-router.get('/', listExpenses);
-router.post('/', createExpense);
-router.put('/:id', updateExpense);
-router.delete('/:id', deleteExpense);
-router.get('/balances/:groupId', groupBalances);
+
+// List expenses with filtering
+router.get('/', listExpensesValidator, listExpenses);
+
+// Get single expense
+router.get('/:id', deleteExpenseValidator, getExpense);
+
+// Create expense
+router.post('/', createExpenseValidator, createExpense);
+
+// Update expense
+router.put('/:id', updateExpenseValidator, updateExpense);
+
+// Delete expense
+router.delete('/:id', deleteExpenseValidator, deleteExpense);
+
+// Get group balances
+router.get('/balances/:groupId', groupBalancesValidator, groupBalances);
+
+// Get group statistics
+router.get('/stats/:groupId', groupBalancesValidator, groupStats);
 
 export default router;

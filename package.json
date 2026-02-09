@@ -1,7 +1,10 @@
 {
   "name": "splitmint-karbon",
   "private": true,
-  "workspaces": ["backend", "frontend"],
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
   "scripts": {
     "install:all": "npm install --workspaces",
     "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
@@ -10,5 +13,14 @@
   },
   "devDependencies": {
     "concurrently": "^9.0.1"
+  },
+  "dependencies": {
+    "connect-mongo": "^6.0.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.3.1",
+    "helmet": "^8.1.0",
+    "morgan": "^1.10.1",
+    "winston": "^3.19.0"
   }
 }

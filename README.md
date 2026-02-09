@@ -6,7 +6,7 @@ A full-stack expense splitting app with authentication, group + participant mana
 - Frontend: React + Vite
 - Backend: Node.js + Express + MongoDB (Mongoose)
 - Auth: Email/password + express-session
-- AI: OpenAI Chat Completions endpoint for natural language expense parsing
+- AI: Google Gemini API endpoint for natural language expense parsing
 
 ## Monorepo structure
 - `frontend/` React client
@@ -37,7 +37,7 @@ Frontend runs at `http://localhost:5173`, backend at `http://localhost:4000`.
    - `MONGODB_URI`
    - `SESSION_SECRET`
    - `FRONTEND_URL`
-   - `OPENAI_API_KEY` (optional)
+   - `GEMINI_API_KEY` (optional)
 
 ### Frontend (Vercel)
 1. Import repo in Vercel.
@@ -49,6 +49,7 @@ Frontend runs at `http://localhost:5173`, backend at `http://localhost:4000`.
 Use free-tier cluster and set `MONGODB_URI` in Render + local `.env`.
 
 ## Notes
+- Optional `GEMINI_MODEL` defaults to `gemini-1.5-flash` for MintSense.
 - Group size is capped at 4 total members (owner + up to 3 additional participants).
 - Split modes: equal, custom fixed amounts, percentage.
 - Equal split uses cent-level deterministic remainder distribution.

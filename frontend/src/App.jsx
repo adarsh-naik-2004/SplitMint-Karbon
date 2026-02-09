@@ -37,7 +37,7 @@ export default function App() {
     toDate: '' 
   });
   const [expenses, setExpenses] = useState([]);
-  const [balances, setBalances] = useState({ net: [], settlements: [] });
+  const [balances, setBalances] = useState({ netBalances: [], settlements: [], summary: null });
   const [expenseDraft, setExpenseDraft] = useState(defaultExpense);
   const [editingExpenseId, setEditingExpenseId] = useState('');
   const [aiText, setAiText] = useState('');
@@ -85,7 +85,7 @@ export default function App() {
       ...Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== '')) 
     };
     const data = await api.expenses(params);
-    setExpenses(data);
+    setExpenses(data.expenses);
   }
 
   async function saveGroup() {
@@ -195,7 +195,7 @@ export default function App() {
   const summary = useMemo(() => {
     const totalSpent = expenses.reduce((a, e) => a + e.amount, 0);
     const ownerId = activeGroup?.participants?.[0]?._id;
-    const ownerNet = balances.net.find((n) => n.participantId === ownerId)?.net || 0;
+    const ownerNet = balances.netBalances.find((n) => n.participantId === ownerId)?.net || 0;
     return { totalSpent, ownerNet };
   }, [expenses, balances, activeGroupId]);
 

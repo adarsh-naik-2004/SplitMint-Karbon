@@ -72,3 +72,33 @@
 2026-02-10 00:04:04 [info]: ::1 - - [09/Feb/2026:18:34:04 +0000] "GET /api/expenses?groupId=698a252184b916dc9a97a2cd HTTP/1.1" 200 77 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
 2026-02-10 00:04:04 [info]: ::1 - - [09/Feb/2026:18:34:04 +0000] "GET /api/expenses/balances/698a252184b916dc9a97a2cd HTTP/1.1" 200 160 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
 2026-02-10 00:04:19 [info]: SIGINT received. Shutting down gracefully...
+2026-02-10 00:29:31 [info]: MongoDB connected successfully
+2026-02-10 00:29:31 [info]: 🚀 SplitMint API running on port 4000
+2026-02-10 00:29:31 [info]: 📊 Environment: development
+2026-02-10 00:29:31 [info]: 🔗 Frontend URL: http://localhost:5173
+2026-02-10 00:29:39 [info]: ::1 - - [09/Feb/2026:18:59:39 +0000] "GET /api/auth/me HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+2026-02-10 00:29:39 [info]: ::1 - - [09/Feb/2026:18:59:39 +0000] "GET /api/groups HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+2026-02-10 00:29:40 [info]: ::1 - - [09/Feb/2026:18:59:40 +0000] "GET /api/expenses?groupId=698a252184b916dc9a97a2cd HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+2026-02-10 00:29:40 [info]: ::1 - - [09/Feb/2026:18:59:40 +0000] "GET /api/expenses/balances/698a252184b916dc9a97a2cd HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+2026-02-10 00:30:04 [info]: User logged out: 698a024442611cd6d73be85e
+2026-02-10 00:30:04 [info]: ::1 - - [09/Feb/2026:19:00:04 +0000] "POST /api/auth/logout HTTP/1.1" 200 37 "http://localhost:5173/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36"
+2026-02-10 00:30:11 [info]: User logged in: adarsh22101@iiitnr.edu.in
+2026-02-10 00:30:11 [info]: ::1 - - [09/Feb/2026:19:00:11 +0000] "POST /api/auth/login HTTP/1.1" 200 85 "http://localhost:5173/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36"
+2026-02-10 00:30:11 [info]: ::1 - - [09/Feb/2026:19:00:11 +0000] "GET /api/groups HTTP/1.1" 304 - "http://localhost:5173/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36"
+2026-02-10 00:31:01 [info]: Expense created: 698a2eed29dc32f52b8b04e8 in group 698a252184b916dc9a97a2cd
+2026-02-10 00:31:01 [info]: ::1 - - [09/Feb/2026:19:01:01 +0000] "POST /api/expenses HTTP/1.1" 201 686 "http://localhost:5173/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36"
+2026-02-10 00:31:01 [info]: ::1 - - [09/Feb/2026:19:01:01 +0000] "GET /api/expenses?groupId=698a252184b916dc9a97a2cd HTTP/1.1" 200 763 "http://localhost:5173/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36"
+2026-02-10 00:31:01 [info]: ::1 - - [09/Feb/2026:19:01:01 +0000] "GET /api/expenses/balances/698a252184b916dc9a97a2cd HTTP/1.1" 200 1060 "http://localhost:5173/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36"
+2026-02-10 00:35:08 [info]: Expense created: 698a2fe429dc32f52b8b04f7 in group 698a252184b916dc9a97a2cd
+2026-02-10 00:35:08 [info]: ::1 - - [09/Feb/2026:19:05:08 +0000] "POST /api/expenses HTTP/1.1" 201 670 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+2026-02-10 00:35:08 [info]: ::1 - - [09/Feb/2026:19:05:08 +0000] "GET /api/expenses?groupId=698a252184b916dc9a97a2cd HTTP/1.1" 200 1434 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+2026-02-10 00:35:08 [info]: ::1 - - [09/Feb/2026:19:05:08 +0000] "GET /api/expenses/balances/698a252184b916dc9a97a2cd HTTP/1.1" 200 1059 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+2026-02-10 00:35:33 [info]: Group updated: 698a252184b916dc9a97a2cd
+2026-02-10 00:35:33 [info]: ::1 - - [09/Feb/2026:19:05:33 +0000] "PUT /api/groups/698a252184b916dc9a97a2cd HTTP/1.1" 200 655 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+2026-02-10 00:35:33 [info]: ::1 - - [09/Feb/2026:19:05:33 +0000] "GET /api/groups HTTP/1.1" 200 657 "http://localhost:5173/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36"
+2026-02-10 00:36:53 [error]: Gemini API error:
+2026-02-10 00:36:53 [error]: ApiError: AI service error: 400
+    at file:///C:/Users/adars/SplitMint-Karbon/backend/src/controllers/aiController.js:83:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+2026-02-10 00:36:53 [info]: ::1 - - [09/Feb/2026:19:06:53 +0000] "POST /api/ai/parse-expense HTTP/1.1" 502 33 "http://localhost:5173/" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36"
+2026-02-10 00:44:19 [info]: SIGINT received. Shutting down gracefully...

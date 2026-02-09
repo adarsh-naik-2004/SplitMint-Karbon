@@ -35,6 +35,14 @@ export async function updateExpense(req, res) {
   const expense = await Expense.findOne({ _id: id, ownerId: req.session.userId });
   if (!expense) return res.status(404).json({ error: 'Not found' });
 
+  const { amount, splitMode, selectedParticipants, customValues } = req.body;
+  if (amount !== undefined && splitMode && selectedParticipants?.length) {
+    const splits = normalizeSplit({ amount, splitMode, participantIds: selectedParticipants, customValues });
+    expense.splits = splits;
+    expense.amount = Number(amount);
+    expense.splitMode = splitMode;
+  }
+
   Object.assign(expense, req.body);
   await expense.save();
   res.json(expense);

@@ -15,10 +15,20 @@ export const api = {
   login: (payload) => request('/auth/login', { method: 'POST', body: JSON.stringify(payload) }),
   me: () => request('/auth/me'),
   logout: () => request('/auth/logout', { method: 'POST' }),
+
   groups: () => request('/groups'),
   createGroup: (payload) => request('/groups', { method: 'POST', body: JSON.stringify(payload) }),
-  expenses: (groupId) => request(`/expenses?groupId=${groupId}`),
+  updateGroup: (id, payload) => request(`/groups/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteGroup: (id) => request(`/groups/${id}`, { method: 'DELETE' }),
+
+  expenses: (params = {}) => {
+    const q = new URLSearchParams(params);
+    return request(`/expenses?${q.toString()}`);
+  },
   createExpense: (payload) => request('/expenses', { method: 'POST', body: JSON.stringify(payload) }),
+  updateExpense: (id, payload) => request(`/expenses/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  deleteExpense: (id) => request(`/expenses/${id}`, { method: 'DELETE' }),
   balances: (groupId) => request(`/expenses/balances/${groupId}`),
+
   parseExpense: (payload) => request('/ai/parse-expense', { method: 'POST', body: JSON.stringify(payload) })
 };

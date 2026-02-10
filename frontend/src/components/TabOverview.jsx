@@ -1,6 +1,58 @@
-export default function TabOverview({ balances, contributionTable, activeGroup, summary }) {
+import { useState } from 'react';
+
+export default function TabOverview({
+  balances,
+  contributionTable,
+  activeGroup,
+  summary,
+  aiSummary,
+  aiSummaryError,
+  isAiSummaryLoading,
+  onGenerateAiSummary
+}) {
+  const [isAiInfoOpen, setIsAiInfoOpen] = useState(false);
+
   return (
     <div className="space-y-6">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">MintSense AI</h3>
+            <p className="text-xs text-gray-600 dark:text-gray-400">Readable AI group summary from your current expenses</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsAiInfoOpen((open) => !open)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/40 rounded-md"
+            >
+              <span className="text-sm">i</span>
+              AI Info
+            </button>
+            <button
+              type="button"
+              onClick={onGenerateAiSummary}
+              disabled={isAiSummaryLoading}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-teal-500 hover:bg-teal-600 rounded-md disabled:opacity-50"
+            >
+              {isAiSummaryLoading ? 'Generating...' : 'Generate Summary'}
+            </button>
+          </div>
+        </div>
+
+        {isAiInfoOpen && (
+          <div className="mt-3 rounded-lg border border-teal-200 dark:border-teal-500/40 bg-teal-50/60 dark:bg-gray-800/70 p-3 text-xs text-gray-700 dark:text-gray-300 space-y-1">
+            <p>✅ Readable group summary is generated from Overview.</p>
+          </div>
+        )}
+
+        {(aiSummary || aiSummaryError) && (
+          <div className={`mt-3 rounded-lg p-3 text-sm ${aiSummaryError ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800' : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700'}`}>
+            {aiSummaryError || aiSummary}
+          </div>
+        )}
+      </div>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
@@ -124,11 +176,16 @@ export default function TabOverview({ balances, contributionTable, activeGroup, 
 
         {/* Smart Settlements */}
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <svg className="w-5 h-5 text-teal-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Smart Settlements</h3>
+          <div className="mb-4">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-teal-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Smart Settlements</h3>
+            </div>
+            <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+              Intelligent settlement paths are shown here to minimize total transfers.
+            </p>
           </div>
 
           {balances.settlements.length === 0 ? (

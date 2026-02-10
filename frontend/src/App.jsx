@@ -91,26 +91,47 @@ function AppContent() {
   }
 
   async function saveGroup() {
-    const participants = groupDraft.participants.filter((p) => p.name.trim()).slice(0, 3);
-    if (!groupDraft.name.trim()) return;
-
-    if (activeGroup && groupDraft.name) {
-      const payload = {
-        name: groupDraft.name,
-        participants: participants.map((p) => ({ 
-          _id: p._id, 
-          name: p.name, 
-          color: p.color, 
-          avatar: p.avatar 
-        }))
-      };
-      await api.updateGroup(activeGroupId, payload);
-    } else {
-      await api.createGroup({ name: groupDraft.name, participants });
+    // Filter out empty participants
+    const participants = groupDraft.participants
+      .filter((p) => p.name.trim())
+      .slice(0, 3);
+    
+    if (!groupDraft.name.trim()) {
+      alert('Please enter a group name');
+      return;
     }
 
-    await loadGroups();
-    resetGroupDraft();
+    try {
+      if (activeGroup && groupDraft.name) {
+        // Editing existing group
+        const payload = {
+          name: groupDraft.name,
+          participants: participants.map((p) => ({ 
+            _id: p._id, 
+            name: p.name, 
+            color: p.color, 
+            avatar: p.avatar 
+          }))
+        };
+        await api.updateGroup(activeGroupId, payload);
+      } else {
+        // Creating new group
+        const payload = {
+          name: groupDraft.name,
+          participants: participants.map((p) => ({
+            name: p.name,
+            color: p.color || '#10b981',
+            avatar: p.avatar || ''
+          }))
+        };
+        await api.createGroup(payload);
+      }
+
+      await loadGroups();
+      resetGroupDraft();
+    } catch (error) {
+      alert(error.message || 'Failed to save group');
+    }
   }
 
   function resetGroupDraft() {
@@ -134,6 +155,7 @@ function AppContent() {
     if (!confirm('Delete this group and all its expenses?')) return;
     await api.deleteGroup(id);
     setActiveGroupId('');
+    resetGroupDraft();
     await loadGroups();
   }
 
@@ -186,14 +208,25 @@ function AppContent() {
   }
 
   async function parseAi() {
-    const result = await api.parseExpense({ text: aiText });
-    setExpenseDraft((d) => ({ 
-      ...d, 
-      description: result.draft.description || d.description, 
-      amount: result.draft.amount || d.amount, 
-      date: result.draft.date || d.date 
-    }));
-    setAiText('');
+    if (!aiText.trim()) return;
+    
+    try {
+      const result = await api.parseExpense({ text: aiText });
+      
+      if (result.note) {
+        alert(result.note);
+      }
+      
+      setExpenseDraft((d) => ({ 
+        ...d, 
+        description: result.draft.description || d.description, 
+        amount: result.draft.amount || d.amount, 
+        date: result.draft.date || d.date
+      }));
+      setAiText('');
+    } catch (error) {
+      alert(error.message || 'AI parsing failed. Please enter details manually.');
+    }
   }
 
   const summary = useMemo(() => {
@@ -257,7 +290,7 @@ function AppContent() {
                 <div className="flex px-4 lg:px-6">
                   <button
                     onClick={() => setActiveTab('overview')}
-                    className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                    className={`px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
                       activeTab === 'overview'
                         ? 'border-teal-500 text-teal-600 dark:text-teal-400'
                         : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
@@ -267,7 +300,7 @@ function AppContent() {
                   </button>
                   <button
                     onClick={() => setActiveTab('transactions')}
-                    className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                    className={`px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
                       activeTab === 'transactions'
                         ? 'border-teal-500 text-teal-600 dark:text-teal-400'
                         : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
@@ -277,7 +310,7 @@ function AppContent() {
                   </button>
                   <button
                     onClick={() => setActiveTab('new')}
-                    className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                    className={`px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-medium border-b-2 transition-colors ${
                       activeTab === 'new'
                         ? 'border-teal-500 text-teal-600 dark:text-teal-400'
                         : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'

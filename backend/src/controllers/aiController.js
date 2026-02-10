@@ -1,24 +1,13 @@
+import { GoogleGenAI, Type } from "@google/genai";
 import { ApiError, asyncHandler } from '../middleware/errorHandler.js';
 import logger from '../utils/logger.js';
 
-/**
- * Extract JSON from text response
- */
-function extractJson(text) {
-  try {
-    return JSON.parse(text);
-  } catch {
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) {
-      try {
-        return JSON.parse(match[0]);
-      } catch {
-        throw new Error('Unable to parse JSON from response');
-      }
-    }
-    throw new Error('No JSON found in response');
-  }
-}
+// Initialize Gemini Client
+const ai = process.env.GEMINI_API_KEY 
+  ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  : null;
+
+const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 
 /**
  * Parse natural language expense using Gemini AI
@@ -26,7 +15,7 @@ function extractJson(text) {
 export const parseExpense = asyncHandler(async (req, res) => {
   const { text } = req.body;
 
-  if (!process.env.GEMINI_API_KEY) {
+  if (!ai) {
     logger.warn('GEMINI_API_KEY not configured, returning fallback response');
     return res.json({
       draft: {
@@ -39,65 +28,54 @@ export const parseExpense = asyncHandler(async (req, res) => {
     });
   }
 
-  const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
   const prompt = `You are an expense parsing assistant. Extract structured expense information from the user's natural language input.
 
-Return ONLY valid JSON with these fields:
-- description (string): A clear description of the expense
-- amount (number): The expense amount (extract from text or 0 if not specified)
-- date (string): Date in YYYY-MM-DD format (extract from text or use today's date)
-- category (string): One of: food, transport, entertainment, utilities, shopping, healthcare, other, uncategorized
+Task: Parse the following expense description and extract key details.
 
-Examples:
-Input: "Lunch at pizza place $25"
-Output: {"description":"Lunch at pizza place","amount":25,"date":"${new Date().toISOString().split('T')[0]}","category":"food"}
+Input: "${text}"
 
-Input: "Taxi to airport yesterday 45 dollars"
-Output: {"description":"Taxi to airport","amount":45,"date":"${new Date(Date.now() - 86400000).toISOString().split('T')[0]}","category":"transport"}
+Examples for reference:
+- "Lunch at pizza place $25" → description: "Lunch at pizza place", amount: 25, date: "${today}", category: "food"
+- "Taxi to airport yesterday 45 dollars" → description: "Taxi to airport", amount: 45, date: "${yesterday}", category: "transport"
+- "Spent 1200 on dinner at Olive Garden" → description: "Dinner at Olive Garden", amount: 1200, date: "${today}", category: "food"
 
-Now parse this expense:`;
+Extract:
+- description: Clear description of the expense (string)
+- amount: Numeric amount (number, 0 if not specified)
+- date: Date in YYYY-MM-DD format (today's date if not specified: ${today})
+- category: One of: food, transport, entertainment, utilities, shopping, healthcare, other, uncategorized
+
+Provide a strict JSON output.`;
 
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: `${prompt}\n\nInput: ${text}` }]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.1,
-          responseMimeType: 'application/json'
+    const result = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            description: { type: Type.STRING },
+            amount: { type: Type.NUMBER },
+            date: { type: Type.STRING },
+            category: { type: Type.STRING }
+          },
+          required: ["description", "amount", "date", "category"]
         }
-      })
+      }
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error('Gemini API error:', errorText);
-      throw new ApiError(502, `AI service error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!rawText) {
-      logger.error('Empty response from Gemini API');
-      throw new ApiError(502, 'AI service returned empty response');
-    }
-
-    const draft = extractJson(rawText);
+    const draft = JSON.parse(result.text);
 
     // Validate and sanitize the draft
     const sanitized = {
       description: String(draft.description || text).slice(0, 200),
       amount: Number(draft.amount) || 0,
-      date: draft.date || new Date().toISOString().split('T')[0],
+      date: draft.date || today,
       category: ['food', 'transport', 'entertainment', 'utilities', 'shopping', 'healthcare', 'other', 'uncategorized'].includes(
         draft.category
       )
@@ -112,10 +90,6 @@ Now parse this expense:`;
       confidence: 'high'
     });
   } catch (error) {
-    if (error instanceof ApiError) {
-      throw error;
-    }
-
     logger.error('Error parsing expense with AI:', error);
 
     // Return fallback response
@@ -124,7 +98,7 @@ Now parse this expense:`;
         description: text,
         amount: 0,
         category: 'uncategorized',
-        date: new Date().toISOString().split('T')[0]
+        date: today
       },
       note: 'AI parsing failed. Please enter details manually.',
       confidence: 'low'
@@ -138,7 +112,7 @@ Now parse this expense:`;
 export const generateSummary = asyncHandler(async (req, res) => {
   const { expenses, groupName } = req.body;
 
-  if (!process.env.GEMINI_API_KEY) {
+  if (!ai) {
     throw new ApiError(503, 'AI service is not configured');
   }
 
@@ -148,11 +122,8 @@ export const generateSummary = asyncHandler(async (req, res) => {
     });
   }
 
-  const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-  const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`;
-
   const expensesText = expenses
-    .map((exp) => `- ${exp.description}: $${exp.amount} (${exp.date}) [${exp.category}]`)
+    .map((exp) => `- ${exp.description}: ₹${exp.amount} (${exp.date}) [${exp.category}]`)
     .join('\n');
 
   const prompt = `Generate a brief, friendly summary (2-3 sentences) of the following expenses for group "${groupName}":
@@ -167,21 +138,16 @@ Focus on:
 Keep it conversational and helpful.`;
 
   try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 200 }
-      })
+    const result = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: prompt,
+      config: {
+        temperature: 0.7,
+        maxOutputTokens: 200
+      }
     });
 
-    if (!response.ok) {
-      throw new ApiError(502, 'AI service error');
-    }
-
-    const data = await response.json();
-    const summary = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const summary = result.text;
 
     if (!summary) {
       throw new ApiError(502, 'AI service returned empty response');

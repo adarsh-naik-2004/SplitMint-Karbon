@@ -8,12 +8,13 @@ export default function GroupSidebar({
   onRemoveGroup,
   onUpdateDraft,
   onSaveGroup,
-  onCancelEdit
+  onCancelEdit,
+  className = ''
 }) {
   const isEditing = !!editingGroupId;
 
   return (
-    <aside className="w-full lg:w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 overflow-y-auto">
+    <aside className={`w-full lg:w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 overflow-y-auto ${className}`}>
       <div className="p-4 lg:p-6 space-y-6">
         {/* Groups List */}
         <div>

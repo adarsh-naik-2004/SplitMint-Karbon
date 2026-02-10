@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 export default function TabNewEntry({
   expenseDraft,
   editingExpenseId,
@@ -10,6 +12,8 @@ export default function TabNewEntry({
   onParseAi,
   onUpdateAiText
 }) {
+  const [isAiHelpOpen, setIsAiHelpOpen] = useState(false);
+
   return (
     <div className="max-w-4xl">
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
@@ -37,18 +41,56 @@ export default function TabNewEntry({
 
         {/* MintSense AI */}
         <div className="bg-gradient-to-br from-teal-500/10 to-teal-600/5 border border-teal-500/30 dark:border-teal-500/30 rounded-lg p-4 mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-teal-500 text-white text-xs font-bold rounded uppercase tracking-wide">
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-              </svg>
-              Mintsense AI
+          <div className="flex flex-col gap-3 mb-3">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-teal-500 text-white text-xs font-bold rounded uppercase tracking-wide">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Mintsense AI
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAiHelpOpen((open) => !open)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-teal-700 dark:text-teal-300 bg-white/70 dark:bg-gray-800/70 border border-teal-500/30 rounded-md hover:bg-white dark:hover:bg-gray-800"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9a3.5 3.5 0 116.544 2c-.657 1.313-1.772 1.875-2.507 2.515-.452.394-.765.85-.765 1.485M12 17h.01"/>
+                </svg>
+                AI Help
+              </button>
             </div>
             <p className="text-xs text-gray-700 dark:text-gray-300">
               Type naturally: "Spent 1200 on dinner at Olive Garden yesterday"
             </p>
           </div>
-          <div className="flex gap-2">
+
+          {isAiHelpOpen && (
+            <div className="mb-3 rounded-lg border border-teal-500/30 bg-white/70 dark:bg-gray-900/60 p-3 text-xs text-gray-700 dark:text-gray-300 space-y-2">
+              <p className="font-semibold text-gray-900 dark:text-white">MintSense AI features</p>
+              <ul className="space-y-1">
+                <li>✅ Convert natural language into structured expense drafts.</li>
+                <li>✅ Auto-categorize expense types (food, transport, utilities, etc.).</li>
+                <li>✅ Generate readable group summaries from Dashboard Overview.</li>
+                <li>✅ Suggest intelligent settlement paths in balances.</li>
+              </ul>
+              <p className="font-semibold text-gray-900 dark:text-white">How to write prompts</p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>Mention amount, description, and date in one sentence.</li>
+                <li>Use words like <span className="font-semibold">today</span>, <span className="font-semibold">yesterday</span>, or exact dates (e.g. 2026-02-10).</li>
+                <li>You can write mixed language or short notes; AI will still try to understand.</li>
+              </ul>
+              <p className="font-semibold text-gray-900 dark:text-white">Example prompts</p>
+              <ul className="space-y-1">
+                <li>• "Paid 850 for groceries today"</li>
+                <li>• "Uber ride 230 on 2026-02-10"</li>
+                <li>• "Dinner at BBQ Nation yesterday 1800"</li>
+              </ul>
+              <p>After parsing, verify category, participants, and split mode before saving.</p>
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-2">
             <textarea
               rows={2}
               value={aiText}
@@ -59,7 +101,7 @@ export default function TabNewEntry({
             <button
               onClick={onParseAi}
               disabled={!aiText.trim()}
-              className="px-4 py-2 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 whitespace-nowrap"
+              className="px-4 py-2 bg-teal-500 text-white font-semibold rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 whitespace-nowrap"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
@@ -154,6 +196,27 @@ export default function TabNewEntry({
                 <option value="percentage">By Percentage</option>
               </select>
             </div>
+          </div>
+
+          <div>
+            <label htmlFor="category" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+              Category
+            </label>
+            <select
+              id="category"
+              value={expenseDraft.category || 'uncategorized'}
+              onChange={(e) => onUpdateDraft((d) => ({ ...d, category: e.target.value }))}
+              className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 dark:text-white"
+            >
+              <option value="food">Food</option>
+              <option value="transport">Transport</option>
+              <option value="entertainment">Entertainment</option>
+              <option value="utilities">Utilities</option>
+              <option value="shopping">Shopping</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="other">Other</option>
+              <option value="uncategorized">Uncategorized</option>
+            </select>
           </div>
         </div>
 

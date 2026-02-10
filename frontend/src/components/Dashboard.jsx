@@ -1,56 +1,68 @@
 export default function Dashboard({ summary, user, onLogout }) {
   return (
-    <header className="dashboard">
-      <div className="dashboard-header">
-        <div className="brand">
-          <span className="brand-icon">💎</span>
-          <h2>SplitMint</h2>
-        </div>
-        
-        <div className="user-menu">
-          <span className="user-name">👋 {user.name}</span>
-          <button onClick={onLogout} className="logout-btn">
-            <span>Logout</span>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6M10.6667 11.3333L14 8M14 8L10.6667 4.66667M14 8H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
-      </div>
+    <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div className="max-w-[1600px] mx-auto px-4 lg:px-6 py-4">
+        <div className="flex items-center gap-4 lg:gap-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-primary-700 flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <h1 className="text-xl font-bold text-gray-900 hidden sm:block">SplitMint</h1>
+          </div>
 
-      <div className="summary-cards">
-        <SummaryCard
-          icon="💰"
-          label="Total Spent"
-          value={`₹${summary.totalSpent.toFixed(2)}`}
-          gradient="from-emerald-500 to-teal-600"
-        />
-        <SummaryCard
-          icon="📤"
-          label="You Owe"
-          value={`₹${Math.max(-summary.ownerNet, 0).toFixed(2)}`}
-          gradient="from-rose-500 to-pink-600"
-        />
-        <SummaryCard
-          icon="📥"
-          label="Owed To You"
-          value={`₹${Math.max(summary.ownerNet, 0).toFixed(2)}`}
-          gradient="from-blue-500 to-indigo-600"
-        />
+          <div className="flex-1 flex items-center gap-2 lg:gap-3 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg flex-shrink-0">
+              <svg className="w-5 h-5 text-primary-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <div>
+                <p className="text-xs text-gray-600 leading-tight">Total Spent</p>
+                <p className="text-sm lg:text-base font-semibold text-gray-900">₹{summary.totalSpent.toFixed(2)}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 bg-red-50 border border-red-200 rounded-lg flex-shrink-0">
+              <svg className="w-5 h-5 text-red-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 11l5-5m0 0l5 5m-5-5v12"/>
+              </svg>
+              <div>
+                <p className="text-xs text-gray-600 leading-tight">You Owe</p>
+                <p className="text-sm lg:text-base font-semibold text-red-700">₹{Math.max(-summary.ownerNet, 0).toFixed(2)}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 lg:gap-3 px-3 lg:px-4 py-2 bg-primary-50 border border-primary-200 rounded-lg flex-shrink-0">
+              <svg className="w-5 h-5 text-primary-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"/>
+              </svg>
+              <div>
+                <p className="text-xs text-gray-600 leading-tight">Owed To You</p>
+                <p className="text-sm lg:text-base font-semibold text-primary-700">₹{Math.max(summary.ownerNet, 0).toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 ml-auto">
+            <div className="hidden lg:flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
+                <span className="text-sm font-semibold text-primary-700">{user.name.charAt(0).toUpperCase()}</span>
+              </div>
+              <span className="text-sm font-medium text-gray-700">{user.name}</span>
+            </div>
+            <button
+              onClick={onLogout}
+              className="flex items-center gap-2 px-3 lg:px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              <span className="hidden lg:inline">Logout</span>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
-  );
-}
-
-function SummaryCard({ icon, label, value, gradient }) {
-  return (
-    <div className={`summary-card ${gradient}`}>
-      <div className="card-icon">{icon}</div>
-      <div className="card-content">
-        <p className="card-label">{label}</p>
-        <h3 className="card-value">{value}</h3>
-      </div>
-      <div className="card-shine"></div>
-    </div>
   );
 }

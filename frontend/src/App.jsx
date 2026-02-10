@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ThemeProvider } from './context/ThemeContext';
 import { api } from './services/api';
 import AuthScreen from './components/AuthScreen';
-import Dashboard from './components/Dashboard';
+import Header from './components/Header';
 import GroupSidebar from './components/GroupSidebar';
-import ExpenseForm from './components/ExpenseForm';
-import BalanceOverview from './components/BalanceOverview';
-import ExpenseList from './components/ExpenseList';
+import TabOverview from './components/TabOverview';
+import TabTransactions from './components/TabTransactions';
+import TabNewEntry from './components/TabNewEntry';
 
 const defaultExpense = {
   description: '',
@@ -17,15 +18,16 @@ const defaultExpense = {
   customValues: {}
 };
 
-export default function App() {
+function AppContent() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
 
   const [groups, setGroups] = useState([]);
   const [activeGroupId, setActiveGroupId] = useState('');
   const [groupDraft, setGroupDraft] = useState({ 
     name: '', 
-    participants: [{ name: '', color: '#22c55e', avatar: '' }] 
+    participants: [{ name: '', color: '#10b981', avatar: '' }] 
   });
 
   const [filters, setFilters] = useState({ 
@@ -92,7 +94,7 @@ export default function App() {
     const participants = groupDraft.participants.filter((p) => p.name.trim()).slice(0, 3);
     if (!groupDraft.name.trim()) return;
 
-    if (activeGroup) {
+    if (activeGroup && groupDraft.name) {
       const payload = {
         name: groupDraft.name,
         participants: participants.map((p) => ({ 
@@ -112,7 +114,7 @@ export default function App() {
   }
 
   function resetGroupDraft() {
-    setGroupDraft({ name: '', participants: [{ name: '', color: '#22c55e', avatar: '' }] });
+    setGroupDraft({ name: '', participants: [{ name: '', color: '#10b981', avatar: '' }] });
   }
 
   function editGroup(group) {
@@ -122,7 +124,7 @@ export default function App() {
       participants: group.participants.slice(1).map((p) => ({ 
         _id: p._id, 
         name: p.name, 
-        color: p.color || '#22c55e', 
+        color: p.color || '#10b981', 
         avatar: p.avatar || '' 
       }))
     });
@@ -159,6 +161,7 @@ export default function App() {
     setExpenseDraft(defaultExpense);
     await loadExpenses();
     setBalances(await api.balances(activeGroupId));
+    setActiveTab('overview');
   }
 
   function startEditExpense(exp) {
@@ -172,6 +175,7 @@ export default function App() {
       selectedParticipants: exp.splits.map((s) => s.participantId),
       customValues: Object.fromEntries(exp.splits.map((s) => [s.participantId, s.amount]))
     });
+    setActiveTab('new');
   }
 
   async function removeExpense(id) {
@@ -212,8 +216,9 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="loading-screen">
-        <div className="spinner"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900">
+        <div className="w-12 h-12 border-4 border-gray-700 border-t-teal-500 rounded-full animate-spin"></div>
+        <p className="mt-4 text-sm font-medium text-gray-400">Loading SplitMint...</p>
       </div>
     );
   }
@@ -223,14 +228,15 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <Dashboard 
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
+      <Header 
         summary={summary} 
         user={user}
+        activeGroup={activeGroup}
         onLogout={() => api.logout().then(() => setUser(null))}
       />
 
-      <div className="main-container">
+      <div className="flex-1 flex overflow-hidden">
         <GroupSidebar
           groups={groups}
           activeGroupId={activeGroupId}
@@ -243,50 +249,110 @@ export default function App() {
           onSaveGroup={saveGroup}
         />
 
-        <main className="content">
+        <main className="flex-1 overflow-y-auto">
           {activeGroup ? (
-            <>
-              <ExpenseForm
-                expenseDraft={expenseDraft}
-                editingExpenseId={editingExpenseId}
-                activeGroup={activeGroup}
-                aiText={aiText}
-                onUpdateDraft={setExpenseDraft}
-                onUpdateSplitValue={updateSplitValue}
-                onSave={saveExpense}
-                onCancel={() => {
-                  setEditingExpenseId('');
-                  setExpenseDraft(defaultExpense);
-                }}
-                onParseAi={parseAi}
-                onUpdateAiText={setAiText}
-              />
+            <div className="max-w-7xl mx-auto">
+              {/* Tabs */}
+              <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+                <div className="flex px-4 lg:px-6">
+                  <button
+                    onClick={() => setActiveTab('overview')}
+                    className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === 'overview'
+                        ? 'border-teal-500 text-teal-600 dark:text-teal-400'
+                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    Overview
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('transactions')}
+                    className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === 'transactions'
+                        ? 'border-teal-500 text-teal-600 dark:text-teal-400'
+                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    Transactions
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('new')}
+                    className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === 'new'
+                        ? 'border-teal-500 text-teal-600 dark:text-teal-400'
+                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    New Entry
+                  </button>
+                </div>
+              </div>
 
-              <BalanceOverview
-                balances={balances}
-                contributionTable={contributionTable}
-                activeGroup={activeGroup}
-              />
-
-              <ExpenseList
-                expenses={expenses}
-                filters={filters}
-                activeGroup={activeGroup}
-                onUpdateFilters={setFilters}
-                onApplyFilters={loadExpenses}
-                onEditExpense={startEditExpense}
-                onRemoveExpense={removeExpense}
-              />
-            </>
+              {/* Tab Content */}
+              <div className="p-4 lg:p-6">
+                {activeTab === 'overview' && (
+                  <TabOverview
+                    balances={balances}
+                    contributionTable={contributionTable}
+                    activeGroup={activeGroup}
+                    summary={summary}
+                  />
+                )}
+                
+                {activeTab === 'transactions' && (
+                  <TabTransactions
+                    expenses={expenses}
+                    filters={filters}
+                    activeGroup={activeGroup}
+                    onUpdateFilters={setFilters}
+                    onApplyFilters={loadExpenses}
+                    onEditExpense={startEditExpense}
+                    onRemoveExpense={removeExpense}
+                  />
+                )}
+                
+                {activeTab === 'new' && (
+                  <TabNewEntry
+                    expenseDraft={expenseDraft}
+                    editingExpenseId={editingExpenseId}
+                    activeGroup={activeGroup}
+                    aiText={aiText}
+                    onUpdateDraft={setExpenseDraft}
+                    onUpdateSplitValue={updateSplitValue}
+                    onSave={saveExpense}
+                    onCancel={() => {
+                      setEditingExpenseId('');
+                      setExpenseDraft(defaultExpense);
+                      setActiveTab('overview');
+                    }}
+                    onParseAi={parseAi}
+                    onUpdateAiText={setAiText}
+                  />
+                )}
+              </div>
+            </div>
           ) : (
-            <div className="empty-state">
-              <div className="empty-icon">📊</div>
-              <h2>No Group Selected</h2>
-              <p>Create or select a group to start tracking expenses</p>
+            <div className="flex flex-col items-center justify-center h-full px-4">
+              <svg className="w-16 h-16 text-gray-300 dark:text-gray-700 mb-4" viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" opacity="0.2"/>
+                <path d="M20 32h24M32 20v24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Group Selected</h2>
+              <p className="text-gray-600 dark:text-gray-400 text-center">
+                Create or select a group from the sidebar to start tracking expenses
+              </p>
             </div>
           )}
         </main>
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }

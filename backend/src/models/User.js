@@ -31,8 +31,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Index for faster queries
-userSchema.index({ email: 1 });
+
 
 // Remove sensitive data from JSON responses
 userSchema.methods.toJSON = function () {

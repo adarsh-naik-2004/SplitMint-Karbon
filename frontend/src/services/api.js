@@ -36,7 +36,6 @@ function normalizeBalancesResponse(payload) {
   };
 }
 
-
 export const api = {
   register: (payload) => request('/auth/register', { method: 'POST', body: JSON.stringify(payload) }),
   login: (payload) => request('/auth/login', { method: 'POST', body: JSON.stringify(payload) }),

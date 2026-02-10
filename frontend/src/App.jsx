@@ -29,6 +29,7 @@ function AppContent() {
     name: '', 
     participants: [{ name: '', color: '#10b981', avatar: '' }] 
   });
+  const [editingGroupId, setEditingGroupId] = useState(''); // NEW: Track which group is being edited
 
   const [filters, setFilters] = useState({ 
     q: '', 
@@ -102,7 +103,7 @@ function AppContent() {
     }
 
     try {
-      if (activeGroup && groupDraft.name) {
+      if (editingGroupId) {
         // Editing existing group
         const payload = {
           name: groupDraft.name,
@@ -113,7 +114,7 @@ function AppContent() {
             avatar: p.avatar 
           }))
         };
-        await api.updateGroup(activeGroupId, payload);
+        await api.updateGroup(editingGroupId, payload);
       } else {
         // Creating new group
         const payload = {
@@ -136,9 +137,11 @@ function AppContent() {
 
   function resetGroupDraft() {
     setGroupDraft({ name: '', participants: [{ name: '', color: '#10b981', avatar: '' }] });
+    setEditingGroupId(''); // Clear editing state
   }
 
   function editGroup(group) {
+    setEditingGroupId(group._id); // Set editing state
     setActiveGroupId(group._id);
     setGroupDraft({
       name: group.name,
@@ -274,12 +277,13 @@ function AppContent() {
           groups={groups}
           activeGroupId={activeGroupId}
           groupDraft={groupDraft}
-          activeGroup={activeGroup}
+          editingGroupId={editingGroupId}
           onSelectGroup={setActiveGroupId}
           onEditGroup={editGroup}
           onRemoveGroup={removeGroup}
           onUpdateDraft={setGroupDraft}
           onSaveGroup={saveGroup}
+          onCancelEdit={resetGroupDraft}
         />
 
         <main className="flex-1 overflow-y-auto">

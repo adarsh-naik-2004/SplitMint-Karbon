@@ -18,7 +18,7 @@ export default function TabOverview({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-semibold text-gray-900 dark:text-white">MintSense AI</h3>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Insights, categorization, and smart settlements</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">Readable AI group summary from your current expenses</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -42,10 +42,7 @@ export default function TabOverview({
 
         {isAiInfoOpen && (
           <div className="mt-3 rounded-lg border border-teal-200 dark:border-teal-500/40 bg-teal-50/60 dark:bg-gray-800/70 p-3 text-xs text-gray-700 dark:text-gray-300 space-y-1">
-            <p>✅ Natural language input → structured expense draft.</p>
-            <p>✅ Auto-category suggestions are applied in New Entry.</p>
             <p>✅ Readable group summary is generated from Overview.</p>
-            <p>✅ Intelligent settlement paths are calculated in balances.</p>
           </div>
         )}
 
@@ -179,11 +176,16 @@ export default function TabOverview({
 
         {/* Smart Settlements */}
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <svg className="w-5 h-5 text-teal-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-            </svg>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Smart Settlements</h3>
+          <div className="mb-4">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-teal-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Smart Settlements</h3>
+            </div>
+            <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+              Intelligent settlement paths are shown here to minimize total transfers.
+            </p>
           </div>
 
           {balances.settlements.length === 0 ? (

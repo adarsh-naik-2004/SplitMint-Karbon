@@ -248,6 +248,28 @@ function AppContent() {
     }
   }
 
+  function buildLocalSummaryText() {
+    if (!activeGroup || expenses.length === 0) {
+      return 'No expenses yet. Add a few entries to generate a summary.';
+    }
+
+    const totalSpent = expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+    const categoryTotals = expenses.reduce((acc, item) => {
+      const key = item.category || 'uncategorized';
+      acc[key] = (acc[key] || 0) + Number(item.amount || 0);
+      return acc;
+    }, {});
+
+    const [topCategory = 'uncategorized'] = Object.keys(categoryTotals).sort(
+      (a, b) => categoryTotals[b] - categoryTotals[a]
+    );
+
+    const settlementCount = balances?.settlements?.length || 0;
+    const topCategoryAmount = categoryTotals[topCategory] || 0;
+
+    return `${activeGroup.name} has ${expenses.length} expenses totaling ₹${totalSpent.toFixed(2)}. Top spend category is ${topCategory} (₹${topCategoryAmount.toFixed(2)}). Suggested settlements: ${settlementCount}.`;
+  }
+
   async function generateAiSummary() {
     if (!activeGroup || expenses.length === 0) {
       setAiSummary('No expenses yet. Add a few entries to generate an AI summary.');
@@ -269,14 +291,20 @@ function AppContent() {
         }))
       });
 
-      setAiSummary(result.summary || 'No summary returned.');
+      const responseText = (result?.summary || '').trim();
+
+      if (responseText.length < 30) {
+        setAiSummary(`${responseText || 'AI summary was too short.'} Showing a detailed fallback summary: ${buildLocalSummaryText()}`);
+      } else {
+        setAiSummary(responseText);
+      }
     } catch (error) {
-      setAiSummaryError(error.message || 'Failed to generate AI summary.');
+      setAiSummary(buildLocalSummaryText());
+      setAiSummaryError(`${error.message || 'Failed to generate AI summary.'} Showing fallback summary.`);
     } finally {
       setIsAiSummaryLoading(false);
     }
   }
-
 
   const summary = useMemo(() => {
     const totalSpent = expenses.reduce((a, e) => a + e.amount, 0);

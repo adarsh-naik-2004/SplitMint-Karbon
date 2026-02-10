@@ -2,13 +2,26 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
 async function request(path, options = {}) {
   const res = await fetch(`${API_URL}${path}`, {
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-    ...options
+    credentials: "include",
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    ...options,
   });
-  if (!res.ok) throw new Error((await res.json()).error || 'Request failed');
-  return res.json();
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    // If backend sends validation details
+    if (data?.details?.length) {
+      const msg = data.details.map((e) => `${e.field}: ${e.message}`).join("\n");
+      throw new Error(msg);
+    }
+
+    throw new Error(data?.error || data?.message || "Request failed");
+  }
+
+  return data;
 }
+
 
 function normalizeExpensesResponse(payload) {
   if (Array.isArray(payload)) {

@@ -98,4 +98,9 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+  generateSummary: (payload) =>
+    request("/ai/generate-summary", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 };

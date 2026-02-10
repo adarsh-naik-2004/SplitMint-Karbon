@@ -15,7 +15,8 @@ const defaultExpense = {
   payerId: '',
   splitMode: 'equal',
   selectedParticipants: [],
-  customValues: {}
+  customValues: {},
+  category: 'uncategorized'
 };
 
 const navTabs = [
@@ -51,6 +52,9 @@ function AppContent() {
   const [expenseDraft, setExpenseDraft] = useState(defaultExpense);
   const [editingExpenseId, setEditingExpenseId] = useState('');
   const [aiText, setAiText] = useState('');
+  const [aiSummary, setAiSummary] = useState('');
+  const [isAiSummaryLoading, setIsAiSummaryLoading] = useState(false);
+  const [aiSummaryError, setAiSummaryError] = useState('');
 
   const activeGroup = groups.find((g) => g._id === activeGroupId);
 
@@ -70,6 +74,8 @@ function AppContent() {
     if (!activeGroupId) return;
     loadExpenses();
     api.balances(activeGroupId).then(setBalances);
+    setAiSummary('');
+    setAiSummaryError('');
   }, [activeGroupId]);
 
   useEffect(() => {
@@ -206,7 +212,8 @@ function AppContent() {
       payerId: exp.payerId,
       splitMode: exp.splitMode,
       selectedParticipants: exp.splits.map((s) => s.participantId),
-      customValues: Object.fromEntries(exp.splits.map((s) => [s.participantId, s.amount]))
+      customValues: Object.fromEntries(exp.splits.map((s) => [s.participantId, s.amount])),
+      category: exp.category || 'uncategorized'
     });
     setActiveTab('new');
   }
@@ -232,13 +239,44 @@ function AppContent() {
         ...d,
         description: result.draft.description || d.description,
         amount: result.draft.amount || d.amount,
-        date: result.draft.date || d.date
+        date: result.draft.date || d.date,
+        category: result.draft.category || d.category || 'uncategorized'
       }));
       setAiText('');
     } catch (error) {
       alert(error.message || 'AI parsing failed. Please enter details manually.');
     }
   }
+
+  async function generateAiSummary() {
+    if (!activeGroup || expenses.length === 0) {
+      setAiSummary('No expenses yet. Add a few entries to generate an AI summary.');
+      setAiSummaryError('');
+      return;
+    }
+
+    setIsAiSummaryLoading(true);
+    setAiSummaryError('');
+
+    try {
+      const result = await api.generateSummary({
+        groupName: activeGroup.name,
+        expenses: expenses.map((expense) => ({
+          description: expense.description,
+          amount: expense.amount,
+          date: new Date(expense.date).toISOString().slice(0, 10),
+          category: expense.category || 'uncategorized'
+        }))
+      });
+
+      setAiSummary(result.summary || 'No summary returned.');
+    } catch (error) {
+      setAiSummaryError(error.message || 'Failed to generate AI summary.');
+    } finally {
+      setIsAiSummaryLoading(false);
+    }
+  }
+
 
   const summary = useMemo(() => {
     const totalSpent = expenses.reduce((a, e) => a + e.amount, 0);
@@ -378,6 +416,10 @@ function AppContent() {
                     contributionTable={contributionTable}
                     activeGroup={activeGroup}
                     summary={summary}
+                    aiSummary={aiSummary}
+                    aiSummaryError={aiSummaryError}
+                    isAiSummaryLoading={isAiSummaryLoading}
+                    onGenerateAiSummary={generateAiSummary}
                   />
                 )}
 
